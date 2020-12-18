@@ -1,13 +1,10 @@
-import { gql } from 'apollo-server-express';
+import { makeExecutableSchema } from 'apollo-server-express';
+import * as userSchema from './user';
 
-export const typeDefs = gql`
-  type Query {
-    hello: String
-  }
-`;
+const typeDefs = [userSchema.typeDefs];
+const resolvers = [userSchema.resolvers];
 
-export const resolvers = {
-  Query: {
-    hello: (): string => 'world',
-  },
-};
+export const schema = makeExecutableSchema({
+  typeDefs,
+  resolvers,
+});
