@@ -1,4 +1,5 @@
 import { gql, IResolvers, AuthenticationError } from 'apollo-server-express';
+import { Response } from 'express';
 import { User } from '../entities/User';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -36,7 +37,7 @@ export const typeDefs = gql`
   }
 `;
 
-export const resolvers: IResolvers = {
+export const resolvers: IResolvers<any, { res: Response }> = {
   Query: {
     getAllUsers: async () => {
       return await User.find();
@@ -53,7 +54,7 @@ export const resolvers: IResolvers = {
 
       return user;
     },
-    login: async (_, { input }) => {
+    login: async (_, { input }, { res }) => {
       const { email, password } = input;
 
       const user = await User.findOne({ email });
@@ -75,6 +76,12 @@ export const resolvers: IResolvers = {
         }
       );
 
+      res.cookie('access_token', token, {
+        maxAge: 1000 * 60 * 60 * 2,
+        //TODO: HTTPS化したらSecure属性つける
+        // secure: true,
+        httpOnly: true,
+      });
       return { token, user };
     },
   },

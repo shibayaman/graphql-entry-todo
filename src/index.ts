@@ -11,13 +11,17 @@ const startServer = async () => {
 
   const server = new ApolloServer({
     schema,
+    context: ({ req, res }) => ({ req, res }),
   });
 
   const app = express();
 
-  server.applyMiddleware({ app });
-
   const port = process.env.PORT || 4000;
+  server.applyMiddleware({
+    app,
+    cors: { origin: true, credentials: true },
+  });
+
   app.listen({ port }, () => {
     console.log(`Server started at http://localhost:${port}`);
   });
