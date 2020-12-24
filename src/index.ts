@@ -1,8 +1,10 @@
 import dotenv from 'dotenv';
 import { createConnection } from 'typeorm';
 import express from 'express';
+import cookieParser from 'cookie-parser';
 import { ApolloServer } from 'apollo-server-express';
 import { schema } from './schemas';
+import { auth } from './auth/middlewares/auth';
 
 dotenv.config();
 
@@ -15,6 +17,10 @@ const startServer = async () => {
   });
 
   const app = express();
+
+  app.use(cookieParser());
+
+  app.use(auth);
 
   const port = process.env.PORT || 4000;
   server.applyMiddleware({

@@ -1,5 +1,5 @@
 import { gql, IResolvers, AuthenticationError } from 'apollo-server-express';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { User } from '../entities/User';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
@@ -29,6 +29,7 @@ export const typeDefs = gql`
 
   type Query {
     getAllUsers: [User]!
+    me: User!
   }
 
   type Mutation {
@@ -37,10 +38,17 @@ export const typeDefs = gql`
   }
 `;
 
-export const resolvers: IResolvers<any, { res: Response }> = {
+export const resolvers: IResolvers<any, { req: Request; res: Response }> = {
   Query: {
     getAllUsers: async () => {
       return await User.find();
+    },
+    me: async (_, __, { req }) => {
+      const user = (req as any).user;
+      if (!user) {
+        throw new AuthenticationError('not logged in');
+      }
+      return user;
     },
   },
   Mutation: {
@@ -51,7 +59,7 @@ export const resolvers: IResolvers<any, { res: Response }> = {
         email,
         password: await bcrypt.hash(password, 10),
       }).save();
-
+      _;
       return user;
     },
     login: async (_, { input }, { res }) => {
