@@ -4,7 +4,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import { ApolloServer } from 'apollo-server-express';
 import { schema } from './schemas';
-import { auth } from './auth/middlewares/auth';
+import { auth } from './middlewares/auth';
 
 dotenv.config();
 

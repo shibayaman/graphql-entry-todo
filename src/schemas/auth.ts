@@ -1,8 +1,9 @@
-import { gql, IResolvers, AuthenticationError } from 'apollo-server-express';
+import { gql, IResolvers } from 'apollo-server-express';
 import { Request, Response } from 'express';
-import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import { User } from '../entities/User';
+import { attemptLogin } from '../auth';
 
 export const typeDefs = gql`
   input RegisterInput {
@@ -36,22 +37,10 @@ export const resolvers: IResolvers<any, { req: Request; res: Response }> = {
         email,
         password: await bcrypt.hash(password, 10),
       }).save();
-      _;
       return user;
     },
     login: async (_, { input }, { res }) => {
-      const { email, password } = input;
-
-      const user = await User.findOne({ email });
-
-      if (!user) {
-        throw new AuthenticationError('No such user exists');
-      }
-
-      const isValidCredential = await bcrypt.compare(password, user.password);
-      if (!isValidCredential) {
-        throw new AuthenticationError('Wrong password');
-      }
+      const user = await attemptLogin(input);
 
       const token = jwt.sign(
         { userId: user.id },
