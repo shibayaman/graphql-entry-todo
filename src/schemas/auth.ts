@@ -1,9 +1,9 @@
 import { gql, IResolvers } from 'apollo-server-express';
-import { Request, Response } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import { User } from '../entities/User';
 import { attemptLogin } from '../auth';
+import { Context } from '../apolloContext';
 
 export const typeDefs = gql`
   input RegisterInput {
@@ -28,7 +28,7 @@ export const typeDefs = gql`
   }
 `;
 
-export const resolvers: IResolvers<any, { req: Request; res: Response }> = {
+export const resolvers: IResolvers<any, Context> = {
   Mutation: {
     register: async (_, { input }) => {
       const { name, email, password } = input;

@@ -1,6 +1,6 @@
 import { gql, IResolvers, AuthenticationError } from 'apollo-server-express';
-import { Request } from 'express';
 import { User } from '../entities/User';
+import { Context } from '../apolloContext';
 
 export const typeDefs = gql`
   type User {
@@ -15,13 +15,12 @@ export const typeDefs = gql`
   }
 `;
 
-export const resolvers: IResolvers<any, { req: Request }> = {
+export const resolvers: IResolvers<any, Context> = {
   Query: {
     getAllUsers: async () => {
       return await User.find();
     },
-    me: async (_, __, { req }) => {
-      const user = (req as any).user;
+    me: async (_, __, { user }) => {
       if (!user) {
         throw new AuthenticationError('not logged in');
       }

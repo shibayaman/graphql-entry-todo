@@ -4,7 +4,7 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import { ApolloServer } from 'apollo-server-express';
 import { schema } from './schemas';
-import { auth } from './middlewares/auth';
+import { createContext } from './apolloContext';
 
 dotenv.config();
 
@@ -13,14 +13,12 @@ const startServer = async () => {
 
   const server = new ApolloServer({
     schema,
-    context: ({ req, res }) => ({ req, res }),
+    context: ({ req, res }) => createContext(req, res),
   });
 
   const app = express();
 
   app.use(cookieParser());
-
-  app.use(auth);
 
   const port = process.env.PORT || 4000;
   server.applyMiddleware({
